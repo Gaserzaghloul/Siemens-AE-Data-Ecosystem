@@ -26,21 +26,68 @@ This system is engineered to create a precise mapping between natural language *
 The following diagram illustrates the streamlined flow from data configuration to various validated outputs.
 
 ```mermaid
-graph LR
-    Input[Configuration & Prompts] --> Engine[Core Generation Engine]
-    Engine --> |1. Map Prompt| Builder[XML Builder]
-    Builder --> |2. Construct Scenarios| Validator{Validation Pipeline}
-    
-    Validator -- Pass --> Storage[(Validated Knowledge Base)]
-    Validator -- Fail --> feedback[Error Feedback Loop]
-    
-    Storage --> Output1[OpenAI Fine-Tuning Data]
-    Storage --> Output2[Structure AUTOSAR XML]
+%%{init: {'theme': 'base', 'themeVariables': { 'mainBkg': '#ffffff', 'background': '#ffffff', 'primaryColor': '#ffffff', 'edgeLabelBackground': '#ffffff', 'clusterBkg': '#ffffff', 'clusterBorder': '#333333', 'textColor': '#000000', 'lineColor': '#333333' }}}%%
+graph TD
+    subgraph Input_Phase [1. Input Definition]
+        Input([Configuration & Prompts])
+    end
 
-    style Input fill:#f9f9f9,stroke:#333,stroke-width:1px
-    style Engine fill:#e1f5fe,stroke:#0277bd,stroke-width:2px
-    style Validator fill:#ffebee,stroke:#c62828,stroke-width:2px
-    style Storage fill:#e0f2f1,stroke:#00695c,stroke-width:2px
+    subgraph Core_Engine [2. Generation Core]
+        Engine[Core Generation Logic]
+        Builder[XML Builder]
+        Map[Prompt Mapper]
+        
+        Input --> Engine
+        Engine --> Map
+        Map -->|Map Intent| Builder
+    end
+
+    subgraph Validation_Phase [3. Quality Assurance]
+        Validator{Validation Pipeline}
+        
+        Rule1[XSD Schema]
+        Rule2[Schematron Rules]
+        Rule3[Python Logic]
+        
+        Builder -->|Draft XML| Validator
+        Validator --> Rule1
+        Validator --> Rule2
+        Validator --> Rule3
+    end
+
+    subgraph Output_Phase [4. Knowledge Base & Export]
+        Storage[(Validated Database)]
+        Output1[OpenAI Fine-Tuning Data]
+        Output2[Standard AUTOSAR XML]
+        
+        Rule1 & Rule2 & Rule3 -->|Pass| Storage
+        Storage --> Output1
+        Storage --> Output2
+    end
+    
+    Validator -- Fail --> Feedback[Error Feedback Loop]
+    Feedback -.-> Engine
+
+    %% Styling for White Background & High Contrast
+    style Input_Phase fill:#ffffff,stroke:#333,stroke-width:2px
+    style Core_Engine fill:#ffffff,stroke:#333,stroke-width:2px
+    style Validation_Phase fill:#ffffff,stroke:#333,stroke-width:2px
+    style Output_Phase fill:#ffffff,stroke:#333,stroke-width:2px
+
+    style Input fill:#f9f9f9,stroke:#000,stroke-width:2px,color:#000
+    style Engine fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000
+    style Builder fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000
+    style Map fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000
+    
+    style Validator fill:#ffebee,stroke:#c62828,stroke-width:3px,color:#000
+    style Rule1 fill:#ffcdd2,stroke:#c62828,color:#000
+    style Rule2 fill:#ffcdd2,stroke:#c62828,color:#000
+    style Rule3 fill:#ffcdd2,stroke:#c62828,color:#000
+    
+    style Storage fill:#e0f2f1,stroke:#00695c,stroke-width:2px,color:#000
+    style Output1 fill:#b2dfdb,stroke:#00695c,color:#000
+    style Output2 fill:#b2dfdb,stroke:#00695c,color:#000
+    style Feedback fill:#fff3e0,stroke:#e65100,stroke-dasharray: 5 5,color:#000
 ```
 
 ## Project Structure
@@ -58,4 +105,4 @@ Siemens-AE-Ecosystem/
 └── SchematronRules.sch   # Business Logic Rules
 ```
 
-*Developed for Siemens .*
+*Developed for Siemens  *
