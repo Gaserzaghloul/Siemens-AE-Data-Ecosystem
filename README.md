@@ -55,7 +55,7 @@ graph TD
         Validator --> Rule3
     end
 
-    subgraph Output_Phase []
+    subgraph Output_Phase [.]
         Storage[(Validated Database)]
         Output1[OpenAI Fine-Tuning Data]
         Output2[Standard AUTOSAR XML]
