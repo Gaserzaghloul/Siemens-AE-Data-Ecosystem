@@ -58,37 +58,4 @@ Siemens-AE-Ecosystem/
 └── SchematronRules.sch   # Business Logic Rules
 ```
 
-## Installation & Setup
-
-### Prerequisites
-*   Python 3.8 or higher
-*   Git version control
-
-### Quick Start
-
-1.  **Clone the Repository**
-    ```bash
-    git clone https://github.com/YOUR_USERNAME/Siemens-Automation-AE-Ecosystem.git
-    cd Siemens-Automation-AE-Ecosystem
-    ```
-
-2.  **Install Dependencies**
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-3.  **Launch the Ecosystem**
-    *   **GUI Mode (Recommended):**
-        ```bash
-        streamlit run gui_app.py
-        ```
-    *   **CLI Mode:**
-        ```bash
-        python Studio_CLI.py
-        ```
-
-## Contribution
-Contributions are encouraged. Please ensure all code changes successfully pass the internal `validation_pipeline.py` checks before submitting a pull request to maintain ecosystem integrity.
-
----
 *Developed for Siemens .*
