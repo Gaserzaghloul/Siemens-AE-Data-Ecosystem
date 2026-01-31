@@ -1,0 +1,1575 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+################################################################
+##                                                            ##
+##                 Copyright Siemens 2025                     ##
+##                  All Rights Reserved                       ##
+##                                                            ##
+##       THIS WORK CONTAINS TRADE SECRET AND PROPRIETARY      ##
+##         INFORMATION WHICH IS THE PROPERTY OF SIEMENS       ##
+##        OR ITS LICENSORS AND IS SUBJECT TO LICENSE TERMS.   ##
+##                                                            ##
+################################################################
+-->
+
+
+<!-- Ae XSD Schema Version 2 -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+		   xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+		   elementFormDefault="qualified" attributeFormDefault="unqualified"
+		   vc:minVersion="1.0">
+
+	<xs:complexType name="AeIdentity">
+		<xs:attribute name="name" type="xs:string" use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="AeReference">
+		<xs:attribute name="DEST" type="xs:string" use="required" />
+	</xs:complexType>
+
+	<xs:attributeGroup name="AeTimeType">
+        <xs:attribute name="value" type="xs:unsignedLong" use="required"/>
+        <xs:attribute name="unit" use="required">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="s"/>
+                    <xs:enumeration value="ms"/>
+                    <xs:enumeration value="us"/>
+					<xs:enumeration value="ns"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:attributeGroup>
+
+	<xs:attributeGroup name="AeInputImageType">
+		<xs:attribute name="height" type="xs:unsignedInt" default="1024"/>
+		<xs:attribute name="width" type="xs:unsignedInt" default="1024"/>
+		<xs:attribute name="channels" type="xs:unsignedInt" default="3"/>
+	</xs:attributeGroup>
+
+	<xs:complexType name="AeInterfaceData">
+		<xs:sequence>
+			<xs:element name="SHORT-NAME" type="AeIdentity" />
+			<xs:element name="ACCESSED-VARIABLE">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="AUTOSAR-VARIABLE-IREF">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="PORT-PROTOTYPE-REF"
+												type="AeReference" />
+									<xs:element name="TARGET-DATA-PROTOTYPE-REF"
+												type="AeReference">
+										<xs:annotation>
+											<xs:documentation>Example
+												/Sender-Receiver-Interface/DataElment
+											</xs:documentation>
+										</xs:annotation>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:simpleType name="uint8_data_definition">
+		<xs:restriction base="xs:int">
+			<xs:minInclusive value="0" />
+			<xs:maxInclusive value="255" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="float_data_definition">
+		<xs:restriction base="xs:float">
+			<xs:minInclusive value="0" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="AePowerParameterType">
+		<xs:attribute name="Split_power_mw" type="float_data_definition" default="10"/>
+		<xs:attribute name="Delay_power_mw" type="float_data_definition" default="10"/>
+		<xs:attribute name="Sequential_power_mw" type="float_data_definition" default="12"/>
+		<xs:attribute name="Static_Power_Leakage_mw" type="float_data_definition" default="0.05"/>
+		<xs:attribute name="Clock_Tree_Power_mw" type="float_data_definition" default="1"/>
+		<xs:attribute name="Power_Per_Nominal_Clock_Mhz" default="100">
+		  <xs:simpleType>
+			<xs:restriction base="xs:integer">
+			  <xs:minInclusive value="1"/>
+			</xs:restriction>
+		  </xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="AeInterfaceType">
+		<xs:sequence>
+			<xs:element name="SHORT-NAME" type="AeIdentity">
+			</xs:element>
+			<xs:element name="DATA-ELEMENTS">
+				<xs:complexType>
+					<xs:sequence maxOccurs="unbounded">
+						<xs:element name="VARIABLE-DATA-PROTOTYPE">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="SHORT-NAME" type="AeIdentity" />
+									<xs:element name="TYPE-TREF">
+										<xs:complexType>
+											<xs:choice>
+												<xs:annotation>
+													<xs:documentation>
+														In case of Generic HW, only Array-of-uint8 should be used.
+														Also, only random data is to be selected with range from 0 to 255.
+													</xs:documentation>
+												</xs:annotation>
+												<xs:element name="Array-of-uint8">
+													<xs:complexType>
+														<xs:choice>
+															<xs:element name="Random-Values-generated">
+																<xs:annotation>
+																	<xs:documentation>support ranges of the form [ min :
+																		max ] where min and max define a range of randomly
+																		generated values determined
+																	</xs:documentation>
+																</xs:annotation>
+																<xs:complexType>
+																	<xs:sequence minOccurs="0">
+																		<xs:element name="Data-Range">
+																			<xs:complexType>
+																				<xs:attribute name="min" use="required"
+																							  type="uint8_data_definition" />
+																				<xs:attribute name="max" use="required"
+																							  type="uint8_data_definition" />
+																			</xs:complexType>
+																		</xs:element>
+																	</xs:sequence>
+																</xs:complexType>
+															</xs:element>
+															<xs:element name="Fixed-values-generated">
+																<xs:complexType>
+																	<xs:attribute name="Default-Value"
+																				  use="required" type="uint8_data_definition" />
+																</xs:complexType>
+															</xs:element>
+														</xs:choice>
+														<xs:attribute name="No_Of_Bytes"
+																	  use="required">
+															<xs:simpleType>
+																<xs:restriction base="xs:int">
+																	<xs:minInclusive value="1" />
+																	<xs:maxInclusive value="130023424" />
+																</xs:restriction>
+															</xs:simpleType>
+														</xs:attribute>
+													</xs:complexType>
+												</xs:element>
+												<xs:element name="Array-of-float">
+													<xs:complexType>
+														<xs:choice>
+															<xs:element name="Random-Values-generated">
+																<xs:annotation>
+																	<xs:documentation>support ranges of the form [ min :
+																		max ] where min and max define a range of randomly
+																		generated values determined
+																	</xs:documentation>
+																</xs:annotation>
+																<xs:complexType>
+																	<xs:sequence minOccurs="0">
+																		<xs:element name="Data-Range">
+																			<xs:complexType>
+																				<xs:attribute name="min" use="required"
+																							  type="float_data_definition" />
+																				<xs:attribute name="max" use="required"
+																							  type="float_data_definition" />
+																			</xs:complexType>
+																		</xs:element>
+																	</xs:sequence>
+																</xs:complexType>
+															</xs:element>
+															<xs:element name="Fixed-values-generated">
+																<xs:complexType>
+																	<xs:attribute name="Default-Value"
+																				  use="required" type="float_data_definition" />
+																</xs:complexType>
+															</xs:element>
+														</xs:choice>
+														<xs:attribute name="No_Of_Elements"
+																	  use="required">
+															<xs:simpleType>
+																<xs:restriction base="xs:int">
+																	<xs:minInclusive value="1" />
+																	<xs:maxInclusive value="130023424" />
+																</xs:restriction>
+															</xs:simpleType>
+														</xs:attribute>
+													</xs:complexType>
+												</xs:element>
+											</xs:choice>
+										</xs:complexType>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="AeTimeEventType">
+		<xs:sequence>
+			<xs:element name="SHORT-NAME"
+						type="AeIdentity" />
+			<xs:element name="START-ON-EVENT-REF"
+						type="AeReference">
+				<xs:annotation>
+					<xs:documentation>Example /SWC1/SWC1Behav/Runnable
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="CUSTOM-BEHAVIOR-REF"
+						type="AeReference" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Example /Behavior1
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="PERIOD">
+				<xs:complexType>
+					<xs:attributeGroup ref="AeTimeType"/>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+
+	</xs:complexType>
+
+	<xs:complexType name="AeDataReceivedEventType">
+
+		<xs:sequence>
+			<xs:element name="SHORT-NAME" type="AeIdentity" />
+			<xs:element name="START-ON-EVENT-REF" type="AeReference">
+				<xs:annotation>
+					<xs:documentation>Example /SWC1/SWC1Behav/Runnable
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="CUSTOM-BEHAVIOR-REF" type="AeReference" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Example /Behavior1
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DATA-IREF">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="TARGET-DATA-ELEMENT-REF" type="AeReference" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>Example
+									/SWC2/sWC2_IntBehav/Runnable/DataElment
+								</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+
+	</xs:complexType>
+
+	<!--xs:complexType name="AeGenericHardwareProducerType">
+		<xs:annotation>
+			<xs:documentation>
+				Generic Hardware component that acts as data Producer
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="LATENCIES">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="ProcessLatency">
+							<xs:annotation>
+								<xs:documentation>Processing Latency</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:attributeGroup ref="AeTimeType"/>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="WriteLatency">
+							<xs:annotation>
+								<xs:documentation>Writing Latency</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:attributeGroup ref="AeTimeType"/>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="AeGenericHardwareConsumerType">
+		<xs:annotation>
+			<xs:documentation>
+				Generic Hardware component that acts as data Consumer
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="LATENCIES">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="ReadLatency">
+							<xs:annotation>
+								<xs:documentation>Reading Latency</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:attributeGroup ref="AeTimeType"/>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="ProcessLatency">
+							<xs:annotation>
+								<xs:documentation>Processing Latency</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:attributeGroup ref="AeTimeType"/>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="AeGenericHardwareNormalType">
+		<xs:annotation>
+			<xs:documentation>
+				Generic Hardware component that acts in Normal mode.
+				It receives data, process it and finally send it to the destination.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="LATENCIES">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="ReadLatency">
+							<xs:annotation>
+								<xs:documentation>Reading Latency</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:attributeGroup ref="AeTimeType"/>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="ProcessLatency">
+							<xs:annotation>
+								<xs:documentation>Processing Latency</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:attributeGroup ref="AeTimeType"/>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="WriteLatency">
+							<xs:annotation>
+								<xs:documentation>Writing Latency</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:attributeGroup ref="AeTimeType"/>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType-->
+	
+	<xs:complexType name="AeGenericHWTimingEventType">
+		<xs:sequence>
+			<xs:element name="PERIOD">
+				<xs:complexType>
+					<xs:attributeGroup ref="AeTimeType"/>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="AeGenericHWTriggerEventType">
+		<xs:sequence>
+			<xs:element name="TRIGGER" type="AeReference"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="AeGenericHWDataReceivedEventType">
+		<xs:sequence>
+			<xs:element name="REQUIRED-PORT-TREF" type="AeReference" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+
+	<xs:complexType name="AeGenericHWFrequency">
+		<xs:annotation>
+			<xs:documentation>This specifies the Generic HardwareIP Frequency in Hz
+			</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="value" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:integer">
+					<xs:minInclusive value="1000" />
+					<xs:maxInclusive value="1000000000" />
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="AeGenericHardwareType">
+		<xs:annotation>
+			<xs:documentation>
+				Generic Hardware component.
+				Its behavior can be configured to be:
+				- Producer: Generates Data and send to required Destination
+				- Consumer: Reads Data from specified source
+				- Normal: Reads Data from specified source, process it then send to required Destination
+
+				It has two operation modes:
+				- Periodic
+				- Event triggered
+
+				After the end of its behavior it raises an interrupt, it must be handled by the core the HW is linked to.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="SHORT-NAME" type="AeIdentity" />
+			<xs:element name="Frequency" type="AeGenericHWFrequency" />
+			<xs:element name="AXI-Master-Port">
+				<xs:complexType>
+					<xs:attribute name="priority" type="xs:unsignedByte" use="required">
+						<xs:annotation>
+							<xs:documentation>
+								Priority range from 0 to 255.
+								0 is the highest priority and given to the CPU connected to the AXI bus.
+								255 is the lowest priority.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="MEMORY-INTERFACE">
+				<xs:annotation>
+					<xs:documentation>
+						Specifies whether Memory Interface is done through Internal Memory or Shared Memory.
+					</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:attribute name="InternalMemory" type="xs:boolean" default="false">
+						<xs:annotation>
+							<xs:documentation>
+								To use Internal Memory set InternalMemory="true"
+								Otherwise Shared Memory is used.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+
+			<xs:element name="INTERNAL-BEHAVIOR">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="PORTS">
+							<xs:complexType>
+								<xs:sequence maxOccurs="unbounded">
+									<xs:element name="P-PORT-PROTOTYPE" minOccurs="0" maxOccurs="unbounded">
+										<xs:complexType>
+											<xs:sequence>
+												<xs:element name="SHORT-NAME" type="AeIdentity" />
+												<xs:element name="PROVIDED-INTERFACE-TREF"
+															type="AeReference" />
+											</xs:sequence>
+										</xs:complexType>
+									</xs:element>
+
+									<xs:element name="R-PORT-PROTOTYPE" minOccurs="0" maxOccurs="unbounded">
+										<xs:complexType>
+											<xs:sequence>
+												<xs:element name="SHORT-NAME" type="AeIdentity" />
+												<xs:element name="REQUIRED-INTERFACE-TREF"
+															type="AeReference" />
+											</xs:sequence>
+										</xs:complexType>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="OPERATIONS-SEQUENCE" type="AeOperationsSequenceType"/>
+						<xs:element name="EVENT">
+							<xs:complexType>
+								<xs:choice>
+									<xs:element name="TIMING-EVENT" type="AeGenericHWTimingEventType"/>
+									<xs:element name="DATA-RECEIVED-EVENT" type="AeGenericHWDataReceivedEventType"/>
+									<xs:element name="TRIGGER-EVENT" type="AeGenericHWTriggerEventType"/>
+								</xs:choice>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+
+			<xs:element name="POWER-PARAMETERS" type="AePowerParameterType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:simpleType name="AeAxiBusFrequencyType">
+		<xs:restriction base="xs:unsignedLong">
+			<xs:minInclusive value="1000000"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:simpleType name="AeAxiBusWidthType">
+		<xs:restriction base="xs:unsignedInt">
+			<xs:minInclusive value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="AeAxiBusType">
+		<xs:annotation>
+			<xs:documentation>
+				AXI bus configuration
+			</xs:documentation>
+		</xs:annotation>
+
+		<xs:attribute name="width" type="AeAxiBusWidthType" default="4">
+			<xs:annotation>
+				<xs:documentation>
+					AXI-BUS width in Bytes.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="frequency" type="AeAxiBusFrequencyType" default="100000000">
+			<xs:annotation>
+				<xs:documentation>
+					AXI-BUS frequency in Hz.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+
+	</xs:complexType>
+
+	<xs:complexType name="AeOperationType">
+		<xs:choice>
+			<xs:element name="WRITE">
+				<xs:complexType>
+					<xs:annotation>
+						<xs:documentation>
+							For SWC-Custom-Behavior:
+							DEST=/swc-name/internalBehavior-name/runnable-name/variableAccess-name
+
+							For Generic_Hardware:
+							DEST=/genericHardware-name/pPort-name
+						</xs:documentation>
+					</xs:annotation>
+					<xs:sequence>
+						<xs:element name="IREF" type="AeReference"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+
+			<xs:element name="READ">
+				<xs:complexType>
+					<xs:annotation>
+						<xs:documentation>
+							For SWC-Custom-Behavior:
+							DEST=/swc-name/internalBehavior-name/runnable-name/variableAccess-name
+
+							For Generic_Hardware:
+							DEST=/genericHardware-name/rPort-name
+						</xs:documentation>
+					</xs:annotation>
+					<xs:sequence>
+						<xs:element name="IREF" type="AeReference"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+
+			<xs:element name="LATENCY">
+				<xs:complexType>
+					<xs:annotation>
+						<xs:documentation>
+							Time Value of type unsigned long and unit of {s, ms, us, ns}.
+							Note: ONLY used with Generic Hardware
+						</xs:documentation>
+					</xs:annotation>
+					<xs:attributeGroup ref="AeTimeType"/>
+				</xs:complexType>
+			</xs:element>
+
+			<xs:element name="LOAD">
+				<xs:complexType>
+					<xs:annotation>
+						<xs:documentation>
+							Number of cycles value of type unsigned int.
+						</xs:documentation>
+					</xs:annotation>
+					<xs:attribute name="value" type="xs:unsignedInt" use="required"/>
+				</xs:complexType>
+			</xs:element>
+
+			<xs:element name="CUSTOM-OPERATION">
+				<xs:complexType>
+					<xs:annotation>
+						<xs:documentation>
+							Custom operation to be executed.
+						</xs:documentation>
+					</xs:annotation>
+
+					<xs:attribute name="functionPrototype" type="xs:string" use="required">
+						<xs:annotation>
+							<xs:documentation>
+								Function prototype to be executed, it must be in the following format: "void func_name(void)"
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+
+					<xs:attribute name="headerFile" type="xs:string" use="required">
+						<xs:annotation>
+							<xs:documentation>
+								Header file -that has the function prototype- to be included.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+
+					<xs:attribute name="includesDir" type="xs:string" use="required">
+						<xs:annotation>
+							<xs:documentation>
+								Path to the includes directory.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+
+					<xs:attribute name="sourcesDir" type="xs:string" use="required">
+						<xs:annotation>
+							<xs:documentation>
+								Path to the sources directory.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+
+				</xs:complexType>
+			</xs:element>
+
+			<xs:element name="BATCH-NORMALIZATION">
+				<xs:complexType>
+					<xs:annotation>
+						<xs:documentation>
+							Batch Normalization Operation.
+						</xs:documentation>
+					</xs:annotation>
+					<xs:attributeGroup ref="AeInputImageType"/>
+				</xs:complexType>
+			</xs:element>
+
+			<xs:element name="CONVOLUTION">
+				<xs:complexType>
+					<xs:annotation>
+						<xs:documentation>
+							Convolution Operation.
+						</xs:documentation>
+					</xs:annotation>
+					<xs:attributeGroup ref="AeInputImageType"/>
+					<xs:attribute name="kernelSize" type="xs:unsignedInt" default="3"/>
+				</xs:complexType>
+			</xs:element>
+
+			<xs:element name="HARDMAX">
+				<xs:complexType>
+					<xs:annotation>
+						<xs:documentation>
+							Hardmax Operation.
+						</xs:documentation>
+					</xs:annotation>
+					<xs:attributeGroup ref="AeInputImageType"/>
+				</xs:complexType>
+			</xs:element>
+
+			<xs:element name="LOG-SOFTMAX">
+				<xs:complexType>
+					<xs:annotation>
+						<xs:documentation>
+							Logarithm of Softmax Operation.
+						</xs:documentation>
+					</xs:annotation>
+					<xs:attributeGroup ref="AeInputImageType"/>
+				</xs:complexType>
+			</xs:element>
+
+			<xs:element name="MAX-POOL">
+				<xs:complexType>
+					<xs:annotation>
+						<xs:documentation>
+							Max Pooling Operation.
+						</xs:documentation>
+					</xs:annotation>
+					<xs:attributeGroup ref="AeInputImageType"/>
+					<xs:attribute name="kernelSize" type="xs:unsignedInt" default="3"/>
+					<xs:attribute name="stride" type="xs:unsignedInt" default="2"/>
+				</xs:complexType>
+			</xs:element>
+
+			<xs:element name="AVG-POOL">
+				<xs:complexType>
+					<xs:annotation>
+						<xs:documentation>
+							Max Pooling Operation.
+						</xs:documentation>
+					</xs:annotation>
+					<xs:attributeGroup ref="AeInputImageType"/>
+					<xs:attribute name="kernelSize" type="xs:unsignedInt" default="3"/>
+					<xs:attribute name="stride" type="xs:unsignedInt" default="2"/>
+				</xs:complexType>
+			</xs:element>
+
+			<xs:element name="TRANSPOSED-CONVOLUTION">
+				<xs:complexType>
+					<xs:annotation>
+						<xs:documentation>
+							Transposed Convolution Operation.
+						</xs:documentation>
+					</xs:annotation>
+					<xs:attributeGroup ref="AeInputImageType"/>
+					<xs:attribute name="kernelSize" type="xs:unsignedInt" default="3"/>
+				</xs:complexType>
+			</xs:element>
+
+		</xs:choice>
+
+	</xs:complexType>
+
+	<xs:complexType name="AeOperationsSequenceType">
+		<xs:sequence>
+			<xs:element name="OPERATION" type="AeOperationType" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="AeSwcCustomBehaviorType">
+		<xs:sequence>
+			<xs:element name="SHORT-NAME" type="AeIdentity" />
+			<xs:element name="OPERATIONS-SEQUENCE" type="AeOperationsSequenceType"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="AeSwcType">
+		<xs:sequence>
+			<xs:element name="SHORT-NAME" type="AeIdentity" />
+			<xs:element name="PORTS" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence maxOccurs="unbounded">
+						<xs:element name="P-PORT-PROTOTYPE" minOccurs="0">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="SHORT-NAME" type="AeIdentity" />
+									<xs:element name="PROVIDED-INTERFACE-TREF"
+												type="AeReference" />
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="R-PORT-PROTOTYPE" minOccurs="0">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="SHORT-NAME" type="AeIdentity" />
+									<xs:element name="REQUIRED-INTERFACE-TREF"
+												type="AeReference" />
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="INTERNAL-BEHAVIORS">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="SWC-INTERNAL-BEHAVIOR">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="SHORT-NAME" type="AeIdentity" />
+									<xs:element name="RUNNABLES">
+										<xs:complexType>
+											<xs:sequence maxOccurs="unbounded">
+												<xs:element name="RUNNABLE-ENTITY">
+													<xs:complexType>
+														<xs:sequence>
+															<xs:element name="SHORT-NAME" type="AeIdentity" />
+															<xs:sequence maxOccurs="unbounded">
+																<xs:element name="DATA-READ-ACCESS" minOccurs="0" maxOccurs="unbounded">
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="VARIABLE-ACCESS" type="AeInterfaceData" />
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="DATA-WRITE-ACCESS" minOccurs="0" maxOccurs="unbounded">
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="VARIABLE-ACCESS" type="AeInterfaceData" />
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+														</xs:sequence>
+													</xs:complexType>
+												</xs:element>
+											</xs:sequence>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="EVENTS">
+										<xs:complexType>
+											<xs:choice maxOccurs="unbounded">
+												<xs:element name="TIMING-EVENT" type="AeTimeEventType"/>
+												<xs:element name="DATA-RECEIVED-EVENT" type="AeDataReceivedEventType"/>
+											</xs:choice>
+										</xs:complexType>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="AeCpuCore">
+		<xs:sequence>
+			<xs:element name="SHORT-NAME" type="AeIdentity" />
+			<xs:element name="Core-runnable-Mapping" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:attribute name="DEST" type="xs:string" use="required" />
+					<xs:attribute name="Load" type="xs:int" use="required">
+						<xs:annotation>
+							<xs:documentation>
+								The number of CPU cycles.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="priority" type="xs:unsignedByte" use="required">
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+			<!--xs:element name="Core-ISR-Mapping" minOccurs="0"
+						maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:attribute name="DEST" type="xs:string" use="required" >
+						<xs:annotation>
+							<xs:documentation>
+								The Generic HW source of the interrupt.
+								This Generic HW must be inside same SoC
+								ex: DEST="/ecu_name/soc_name/GenericHW_name" or
+								DEST="/ecu_name/soc_name/chiplet_name/GenericHW_name"
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element-->
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="AeCpuFrequency">
+		<xs:annotation>
+			<xs:documentation>This specifies the CPU Frequency in Hz
+			</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="value" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:integer">
+					<xs:minInclusive value="1000" />
+					<xs:maxInclusive value="1000000000" />
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType abstract="true" name="AeCpuCluster">
+		<xs:sequence>
+			<xs:element name="SHORT-NAME" type="AeIdentity" />
+			<xs:element name="Frequency" type="AeCpuFrequency" />
+		</xs:sequence>
+		<xs:attribute name="CoresPerCluster" use="required"/>
+	</xs:complexType>
+
+	<xs:complexType name="AeHexaCoreCluster">
+		<xs:complexContent>
+			<xs:restriction base="AeCpuCluster">
+				<xs:sequence>
+					<xs:element name="SHORT-NAME" type="AeIdentity" />
+					<xs:element name="Frequency" type="AeCpuFrequency" />
+				</xs:sequence>
+				<xs:attribute name="CoresPerCluster" use="required">
+					<xs:simpleType>
+						<xs:restriction base="xs:unsignedInt">
+							<xs:enumeration value="1"/>
+							<xs:enumeration value="2"/>
+							<xs:enumeration value="4"/>
+							<xs:enumeration value="8"/>
+							<xs:enumeration value="16"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="AeOctaCoreCluster">
+		<xs:complexContent>
+			<xs:restriction base="AeCpuCluster">
+				<xs:sequence>
+					<xs:element name="SHORT-NAME" type="AeIdentity" />
+					<xs:element name="Frequency" type="AeCpuFrequency" />
+				</xs:sequence>
+				<xs:attribute name="CoresPerCluster" use="required">
+					<xs:simpleType>
+						<xs:restriction base="xs:unsignedInt">
+							<xs:enumeration value="1"/>
+							<xs:enumeration value="2"/>
+							<xs:enumeration value="4"/>
+							<xs:enumeration value="8"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="AeQuadCoreCluster">
+		<xs:complexContent>
+			<xs:restriction base="AeCpuCluster">
+				<xs:sequence>
+					<xs:element name="SHORT-NAME" type="AeIdentity" />
+					<xs:element name="Frequency" type="AeCpuFrequency" />
+				</xs:sequence>
+				<xs:attribute name="CoresPerCluster" use="required">
+					<xs:simpleType>
+						<xs:restriction base="xs:unsignedInt">
+							<xs:enumeration value="1"/>
+							<xs:enumeration value="2"/>
+							<xs:enumeration value="4"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="AeDualCoreCluster">
+		<xs:complexContent>
+			<xs:restriction base="AeCpuCluster">
+				<xs:sequence>
+					<xs:element name="SHORT-NAME" type="AeIdentity" />
+					<xs:element name="Frequency" type="AeCpuFrequency" />
+				</xs:sequence>
+				<xs:attribute name="CoresPerCluster" use="required">
+					<xs:simpleType>
+						<xs:restriction base="xs:unsignedInt">
+							<xs:enumeration value="1"/>
+							<xs:enumeration value="2"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="AeSingleCoreCluster">
+		<xs:complexContent>
+			<xs:restriction base="AeCpuCluster">
+				<xs:sequence>
+					<xs:element name="SHORT-NAME" type="AeIdentity" />
+					<xs:element name="Frequency" type="AeCpuFrequency" />
+				</xs:sequence>
+				<xs:attribute name="CoresPerCluster" use="required">
+					<xs:simpleType>
+						<xs:restriction base="xs:unsignedInt">
+							<xs:enumeration value="1"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="AeAnalyseSimtime">
+		<xs:attribute name="StartTime" type="xs:string" />
+		<xs:attribute name="EndTime" type="xs:string" />
+	</xs:complexType>
+
+	<xs:attributeGroup name="port_scale_group">
+		<xs:attribute name="name" type="xs:string" use="required" />
+		<xs:attribute name="scale_value" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:float" />
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:attributeGroup>
+
+	<xs:complexType name="AeAnalysisType">
+		<xs:sequence>
+			<xs:element name="SW-Analysis-Enable" minOccurs="0">
+				<xs:complexType>
+					<xs:choice>
+						<xs:element name="ALL-SoCs" type="xs:string"/>
+						<xs:element name="Selected-SoCs">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="SoC" type="AeReference" maxOccurs="unbounded"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="HW-Analysis-Enable" minOccurs="0">
+				<xs:complexType>
+					<xs:choice>
+						<xs:element name="ALL-SoCs" type="xs:string"/>
+						<xs:element name="Selected-SoCs">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="SoC" type="AeReference" maxOccurs="unbounded"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Power-Analysis-Enable" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Power Analysis can only be enabled for SoCs running Nucleus on all its CPU Clusters</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:choice>
+						<xs:element name="ALL-SoCs" type="xs:string"/>
+						<xs:element name="Selected-SoCs">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="SoC" type="AeReference" maxOccurs="unbounded"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Network-Analysis-Enable" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="CAN-BUS-Monitor-Enable" type="xs:string" minOccurs="0"/>
+						<xs:element name="ETH-Switch-Monitor-Enable" type="xs:string" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="AeCpuArchType">
+		<xs:sequence>
+			<xs:element name="Operating-System" type="AeOsType"/>
+			<xs:choice>
+				<xs:element name="ARMV9-Family">
+					<xs:complexType>
+						<xs:choice>
+							<xs:element name="AFM-CortexA510" type="AeOctaCoreCluster"/>
+							<xs:element name="AFM-CortexA710" type="AeOctaCoreCluster"/>
+							<xs:element name="AFM-CortexA720" type="AeOctaCoreCluster"/>
+						</xs:choice>
+					</xs:complexType>
+				</xs:element>
+
+				<xs:element name="ARMV8-Family">
+					<xs:complexType>
+						<xs:choice>
+							<xs:element name="CortexA53" type="AeOctaCoreCluster"/>
+							<xs:element name="CortexA57" type="AeOctaCoreCluster"/>
+							<xs:element name="CortexA72" type="AeOctaCoreCluster"/>
+							<xs:element name="CortexR52" type="AeQuadCoreCluster"/>
+						</xs:choice>
+					</xs:complexType>
+				</xs:element>
+
+				<xs:element name="ARMV7-Family">
+					<xs:complexType>
+						<xs:choice>
+							<xs:element name="CortexM7" type="AeSingleCoreCluster"/>
+						</xs:choice>
+					</xs:complexType>
+				</xs:element>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="AeOsType">
+		<xs:choice>
+			<xs:element name="Nucleus_RTOS">
+				<xs:complexType>
+					<xs:annotation>
+						<xs:documentation>
+							siemens Nucleus® RTOS enables system developers
+							to address the complex requirements demanded by
+							today’s advanced embedded designs. Nucleus
+							brings together kernel-rich functionality and
+							tooling features ideal for applications where a
+							scalable footprint, connectivity, security,
+							power management, and deterministic performance
+							are essential. Nucleus RTOS is a proven,
+							reliable, and fully optimized RTOS. Nucleus has
+							been successfully deployed in highly demanding
+							markets with rigorous safety and security
+							requirements such as industrial systems, medical
+							devices, airborne systems, automotive and more.
+						</xs:documentation>
+					</xs:annotation>
+					<xs:attribute name="Affine-tasks-byOS" type="xs:boolean" default="false"/>
+					<xs:attribute name="Show_UART_Terminal" type="xs:boolean" default="false"/>
+				</xs:complexType>
+			</xs:element>
+
+			<xs:element name="Linux">
+				<xs:complexType>
+					<xs:choice>
+						<xs:element name="Buildroot_File_System" type="xs:string">
+							<xs:annotation>
+								<xs:documentation>
+									Buildroot Simplified File System.
+								</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="Ubuntu_File_System" type="xs:string">
+							<xs:annotation>
+								<xs:documentation>
+									Ubuntu File System.
+								</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:choice>
+					<xs:attribute name="Affine-tasks-byOS" type="xs:boolean" default="false"/>
+					<xs:attribute name="Show_UART_Terminal" type="xs:boolean" default="false"/>
+				</xs:complexType>
+			</xs:element>
+
+		</xs:choice>
+
+	</xs:complexType>
+
+	<xs:complexType name="AeChipletType">
+		<xs:sequence>
+			<xs:element name="SHORT-NAME" type="AeIdentity" />
+			<xs:element name="AXI-BUS" type="AeAxiBusType"/>
+			<xs:element name="ETHERNET-INTERFACE" type="AeEthernetInterfaceType"/>
+			<xs:element name="UCIe-INTERFACE" type="AeUcieInterfaceType"/>
+			<xs:element name="CPU_Cluster" type="AeCpuArchType" minOccurs="0"/>
+			<xs:element name="Generic_Hardware" type="AeGenericHardwareType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="AeNetworkTopologyType">
+		<xs:sequence>
+			<xs:element name="InterECU_communication" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="CAN-BUS" minOccurs="0" maxOccurs="8">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="SHORT-NAME" type="AeIdentity"/>
+									<xs:element name="BaudRate">
+										<xs:annotation>
+											<xs:documentation>
+												CAN bus baudrate.
+												Unit in bit per second (bps)
+											</xs:documentation>
+										</xs:annotation>
+										<xs:complexType>
+											<xs:attribute name="value"
+														  type="xs:integer" default="500000" />
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="INTERFACE-TREF" maxOccurs="unbounded" type="AeReference">
+										<xs:annotation>
+											<xs:documentation>
+												Example
+												/InterfaceName
+											</xs:documentation>
+										</xs:annotation>
+									</xs:element>
+								</xs:sequence>
+								<xs:attribute name="CAN-FD" type="xs:boolean" default="true"/>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="Eth-Switch" minOccurs="0" maxOccurs="8">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="SHORT-NAME" type="AeIdentity" />
+									<xs:element name="INTERFACE-TREF" maxOccurs="unbounded" type="AeReference">
+										<xs:annotation>
+											<xs:documentation>
+												Example
+												/InterfaceName
+											</xs:documentation>
+										</xs:annotation>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="AeD2DConfigType">
+		<xs:sequence>
+			<xs:element name="LINK_WIDTH">
+				<xs:complexType>
+					<xs:annotation>
+						<xs:documentation>The width of the UCIe link (bytes per cycle). unit in Bytes</xs:documentation>
+					</xs:annotation>
+					<xs:attribute name="value" default="256">
+						<xs:simpleType>
+							<xs:restriction base="xs:unsignedInt">
+								<xs:minInclusive value="1"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+
+
+			<xs:element name="LINK_FREQUENCY">
+				<xs:complexType>
+					<xs:annotation>
+						<xs:documentation>The operating frequency of the UCIe link. unit in Hz</xs:documentation>
+					</xs:annotation>
+					<xs:attribute name="value" default="250000000">
+						<xs:simpleType>
+							<xs:restriction base="xs:unsignedInt">
+								<xs:minInclusive value="1"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+
+
+			<xs:element name="PROTOCOL_CONV_LATENCY">
+				<xs:complexType>
+						<xs:annotation>
+							<xs:documentation>Time taken by the D2D adapter for protocol conversion.</xs:documentation>
+						</xs:annotation>
+					<xs:attribute name="value" type="xs:unsignedLong" default="6"/>
+					<xs:attribute name="unit" default="ns">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:enumeration value="s"/>
+								<xs:enumeration value="ms"/>
+								<xs:enumeration value="us"/>
+								<xs:enumeration value="ns"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+
+
+			<xs:element name="CHIPLET_LINK_LATENCY">
+				<xs:complexType>
+						<xs:annotation>
+							<xs:documentation>Time taken for data to traverse the UCIe link.</xs:documentation>
+						</xs:annotation>
+					<xs:attribute name="value" type="xs:unsignedLong" default="2"/>
+					<xs:attribute name="unit" default="ns">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:enumeration value="s"/>
+								<xs:enumeration value="ms"/>
+								<xs:enumeration value="us"/>
+								<xs:enumeration value="ns"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+
+
+			<xs:element name="LOGICAL_IF_DELAY">
+				<xs:complexType>
+						<xs:annotation>
+							<xs:documentation>Delay introduced by data processing before transmission.</xs:documentation>
+						</xs:annotation>
+					<xs:attribute name="value" type="xs:unsignedLong" default="6"/>
+					<xs:attribute name="unit" default="ns">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:enumeration value="s"/>
+								<xs:enumeration value="ms"/>
+								<xs:enumeration value="us"/>
+								<xs:enumeration value="ns"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+
+
+			<xs:element name="PHYSICAL_IF_DELAY">
+				<xs:complexType>
+						<xs:annotation>
+							<xs:documentation>Delay caused by signal propagation through physical media.</xs:documentation>
+						</xs:annotation>
+					<xs:attribute name="value" type="xs:unsignedLong" default="5"/>
+					<xs:attribute name="unit" default="ns">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:enumeration value="s"/>
+								<xs:enumeration value="ms"/>
+								<xs:enumeration value="us"/>
+								<xs:enumeration value="ns"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+
+		</xs:sequence>
+		<xs:attribute name="DestChipletRef" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>
+					Path to the destination chiplet,
+					eg.: /ecu-name/soc-name
+						or
+						 /ecu-name/soc-name/chiplet-name
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="AeEndpointDMAConfigType">
+		<!--xs:attribute name="BurstSize" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:unsignedInt">
+					<xs:minInclusive value="1"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute-->
+		<xs:attribute name="Frequency" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:unsignedInt">
+					<xs:minInclusive value="1"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="AeUcieInterfaceType">
+		<xs:annotation>
+			<xs:documentation>
+				Interchiplet communication interface over UCIe
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Endpoint_DMA_Configuration" type="AeEndpointDMAConfigType" minOccurs="0"/>
+
+			<xs:element name="D2D_Configuration" type="AeD2DConfigType" minOccurs="0" maxOccurs="3"/>
+		</xs:sequence>
+		<xs:attribute name="Mode" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="host"/>
+					<xs:enumeration value="endpoint"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="AePreBuiltApplicationType">
+		<xs:sequence>
+			<xs:element name="SHORT-NAME" type="AeIdentity" />
+			<xs:element name="PATH" type="AeReference">
+				<xs:annotation>
+					<xs:documentation>
+					Path to a pre-built application to run over the hardware
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="AeHwSwMappingType">
+		<xs:choice>
+			<xs:element name="Cluster-PrebuiltApplication-Mapping" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:attribute name="PrebuiltApplicationRef" type="xs:string" use="required">
+						<xs:annotation>
+							<xs:documentation>
+								Path to the required prebuilt application,
+								eg.: /prebuilt-application-name
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+
+			<xs:element name="Core-PrebuiltApplication-Mapping" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:attribute name="CoreId" use="required">
+						<xs:annotation>
+							<xs:documentation>
+								Required core Id starting from index 0, must be less than the CoresPerCluster value.
+							</xs:documentation>
+						</xs:annotation>
+						<xs:simpleType>
+							<xs:restriction base="xs:unsignedByte">
+								<xs:minInclusive value="0"/>
+								<xs:maxInclusive value="7"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+
+					<xs:attribute name="PrebuiltApplicationRef" type="xs:string" use="required">
+						<xs:annotation>
+							<xs:documentation>
+								Path to the required prebuilt application,
+								eg.: /prebuilt-application-name
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+
+			<xs:element name="Core-Runnable-Mapping" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:attribute name="CoreId" use="required">
+						<xs:annotation>
+							<xs:documentation>
+								Required core Id starting from index 0, must be less than the CoresPerCluster value.
+							</xs:documentation>
+						</xs:annotation>
+						<xs:simpleType>
+							<xs:restriction base="xs:unsignedByte">
+								<xs:minInclusive value="0"/>
+								<xs:maxInclusive value="7"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+
+					<xs:attribute name="RunnableRef" type="xs:string" use="required">
+						<xs:annotation>
+							<xs:documentation>
+								Path to the required runnable,
+								eg.: /swc-name/swc-internal-behavior-name/runnable-name
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+
+					<xs:attribute name="Load" type="xs:unsignedInt" use="required">
+						<xs:annotation>
+							<xs:documentation>
+								The number of CPU cycles used as synthetic load
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+
+					<xs:attribute name="Priority" use="required">
+						<xs:simpleType>
+							<xs:restriction base="xs:unsignedByte">
+								<xs:minInclusive value="1"/>
+								<xs:maxInclusive value="99"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+		</xs:choice>
+		<xs:attribute name="ClusterRef" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>
+					Path to the required cluster,
+					eg.: /ecu-name/soc-name/cluster-name
+						or
+						 /ecu-name/soc-name/chiplet-name/cluster-name
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="AeEthernetInterfaceType">
+		<xs:annotation>
+			<xs:documentation>
+				Ethernet mode:
+					* Simulated: Default mode, not visible from the Host network
+					* Native: Connected to the Host network through mapped ports
+
+				** In each SoC, only one chiplet can be in Native mode
+				** Chiplets in different ECUs must have same ethernet mode to communicate with each others
+
+			</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="Mode" default="simulated">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="simulated"/>
+					<xs:enumeration value="native"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:element name="AR-PACKAGE">
+
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="ELEMENTS" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Simulation-Time" minOccurs="0">
+								<xs:complexType>
+									<xs:attributeGroup ref="AeTimeType"/>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="SENDER-RECEIVER-INTERFACE"
+										minOccurs="0" maxOccurs="unbounded" type="AeInterfaceType" />
+							<xs:element name="APPLICATION-SW-COMPONENT-TYPE"
+										minOccurs="0" maxOccurs="unbounded" type="AeSwcType" />
+							<xs:element name="SWC-CUSTOM-BEHAVIOR" type="AeSwcCustomBehaviorType" minOccurs="0" maxOccurs="unbounded" />
+							<xs:element name="PRE-BUILT-APPLICATION" type="AePreBuiltApplicationType" minOccurs="0" maxOccurs="unbounded"/>
+							<xs:element name="Network-Topology" type="AeNetworkTopologyType" minOccurs="0"/>
+							<xs:element name="ECUs" maxOccurs="100">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="SHORT-NAME" type="AeIdentity" />
+										<xs:element name="SoCs" maxOccurs="100">
+											<xs:annotation>
+												<xs:documentation>
+													Notes:
+													- Total number of all SoCs in the System is max equal 100
+													- Total number of all CPU_Cluster/Chiplets in each SoC is max equal 4
+													- Total number of all Generic_Hardware in each Chiplets/SoC is max equal 32
+												</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="SHORT-NAME" type="AeIdentity" />
+													<xs:element name="AXI-BUS" type="AeAxiBusType"/>
+													<xs:element name="ETHERNET-INTERFACE" type="AeEthernetInterfaceType"/>
+													<xs:element name="UCIe-INTERFACE" type="AeUcieInterfaceType"/>
+													<xs:element name="Chiplet" type="AeChipletType" minOccurs="0" maxOccurs="unbounded"/>
+													<xs:element name="CPU_Cluster" type="AeCpuArchType" minOccurs="0"/>
+													<xs:element name="Generic_Hardware" type="AeGenericHardwareType" minOccurs="0" maxOccurs="unbounded"/>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="HW-SW-MAPPING" type="AeHwSwMappingType" minOccurs="0" maxOccurs="unbounded"/>
+							<xs:element name="Analysis" minOccurs="0"
+										type="AeAnalysisType" />
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+</xs:schema>

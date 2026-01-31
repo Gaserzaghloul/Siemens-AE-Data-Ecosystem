@@ -1,0 +1,6 @@
+streamlit
+Faker
+xmlschema
+lxml
+pandas
+openai
