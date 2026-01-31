@@ -91,4 +91,4 @@ Siemens-AE-Ecosystem/
 Contributions are encouraged. Please ensure all code changes successfully pass the internal `validation_pipeline.py` checks before submitting a pull request to maintain ecosystem integrity.
 
 ---
-*Developed for Siemens Automation Data Research.*
+*Developed for Siemens .*
